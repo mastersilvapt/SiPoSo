@@ -1,5 +1,5 @@
 -module(client).
--export([status/1]).
+-export([do/2]).
 
 rpc(Server, Content) ->
     Ref = make_ref(),
@@ -8,5 +8,8 @@ rpc(Server, Content) ->
         {response, Ref, Replay} -> Replay
     end.
 
-status(Server) ->
-    io:format("Status: ~p~n",[rpc(Server,{status})]).
+do(sum,Args) -> io:format("Sum is ~p~n", [rpc(list,{sum,Args})]);
+do(sub,Args) -> io:format("Sum is ~p~n", [rpc(list,{sub,Args})]);
+do(mult,Args) -> io:format("Sum is ~p~n", [rpc(list,{mult,Args})]);
+do(status,_) -> io:format("Status: ~p~n",[rpc(list,{status})]);
+do(_,_) -> ok.
