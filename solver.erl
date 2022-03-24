@@ -1,58 +1,29 @@
 -module(solver).
--export([start/1, normalize/1, sum/2, sub/2, clean/1, nub/1, mult/2, calculateVars/2, calculateExp/2]).
+-export([handler/1]).
 
-% Start and register the server as server to other nodes access it.
-start(Name) -> register(Name, spawn(fun() -> loop(0) end)), put(name,Name), list ! {register, Name, whereis(Name)}.
-
-% Function that receives and redirect
-loop(N) ->
-    receive
-        {From, Ref, {stop}} ->
-            io:format("Server going offline.~nOrder by ~p with reference ~p~n.", [node(whereis(From)), Ref]),
-            replay(From, Ref, stop()),
-            list ! {unregister, get(name)};
-        {From, Ref, {status}} -> replay(From, Ref, N),loop(N);
-        {From, Ref, Content} -> replay(From, Ref, handler(Content)),loop(N+1)
-    end.
-
-% Stops the server and prints who did it.
-stop() -> unregister(get(name)), ok.
-
-%
-replay(From, Ref, Response) ->
-    From ! {response,Ref,Response}.
-
-
-%normalize({VS,C,ES}) ->
-
-handler({sum,{XS,YS}}) -> sum(XS,YS);
-handler({sub,{XS,YS}}) -> sub(XS,YS);
-handler({mult,{XS,YS}}) -> mult(XS,YS);
+handler({sum,{XS,YS}}) -> clean(sum(XS,YS));
+handler({sub,{XS,YS}}) -> clean(sub(XS,YS));
+handler({mult,{XS,YS}}) -> clean(mult(XS,YS));
 handler(_) -> ok.
 
-%head([X|_]) -> X.
-
-getSum([]) -> 0;
-getSum([{_,C,_}|XS]) -> C + getSum(XS).
 
 filter(t,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> (V == Vf) and (E == Ef) end,XS);
-filter(f,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> (V /= Vf) or (E /= Ef) end,XS).
+filter(f,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> not ((V == Vf) and (E == Ef)) end,XS).
 
 clean(XS) -> lists:filter(fun({V,C,E}) -> C /= 0 end, XS).
 
 normalize([]) -> [];
-normalize([{V,C,E}|XS]) -> [{V, C+getSum(filter(t,V,E,XS)), E}] ++ normalize(filter(f,V,E,XS)).
-%normalize([{V,C,E}|XS]) -> [{V, C+getSum(filter(t,V,E,XS)), E}] ++ normalize(filter(f,V,E,XS)).
+normalize([{V,C,E}|XS]) -> [{V, lists:foldr(fun({_,C1,_},Acc) -> C1+Acc end, C, filter(t,V,E,XS)), E} | normalize(filter(f,V,E,XS))].
 
 sum(XS,YS) -> normalize(lists:append(XS,YS)).
 
 sub(XS,YS) -> sum(XS,[{V,-C,E} || {V,C,E} <- YS ]).
 
 nub([]) -> [];
-nub([X|XS]) -> [X] ++ nub(lists:filter(fun(Xi) -> Xi /= X end, XS)).
+nub([X|XS]) -> [X | nub(lists:filter(fun(Xi) -> Xi /= X end, XS))].
 
 calculateVars(V1,V2) -> nub(lists:append(V1,V2)).
 
-calculateExp(J1,J2) -> lists:map(fun({F,S}) -> S end, lists:merge(lists:sort(J1), lists:sort(J2))).
+calculateExp(J1,J2) -> lists:map(fun({_,S}) -> S end, lists:merge(lists:sort(J1), lists:sort(J2))).
 
 mult(XS,YS) -> normalize([{calculateVars(V1,V2), C1*C2, calculateExp(lists:zip(V1,E1),lists:zip(V2,E2))} || {V1,C1,E1} <- XS, {V2,C2,E2} <- YS]).
