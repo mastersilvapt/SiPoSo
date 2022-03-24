@@ -17,7 +17,7 @@ normalize([{V,C,E}|XS]) -> [{V, lists:foldr(fun({_,C1,_},Acc) -> C1+Acc end, C, 
 
 sum(XS,YS) -> normalize(lists:append(XS,YS)).
 
-sub(XS,YS) -> sum(XS,[{V,-C,E} || {V,C,E} <- YS ]).
+sub(XS,YS) -> sum(XS,[{V,-C,E} || {V,C,E} <- YS]).
 
 nub([]) -> [];
 nub([X|XS]) -> [X | nub(lists:filter(fun(Xi) -> Xi /= X end, XS))].
