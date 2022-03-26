@@ -1,55 +1,43 @@
 -module(mathfunc).
+-export([handler/1,checkIntegrity/1]).
+%-compile(export_all).
 
--compile([export_all]).
+checkIntegrity([]) -> true;
+checkIntegrity([{V,C,E}|XS]) -> if (is_integer(C) and (length(V) == length(E))) -> checkIntegrity(XS); true -> false end;
+checkIntegrity(_) -> false.
 
-sum(XS, YS) -> normalize(lists:append(XS, YS)).
+handler({sum,{XS,YS}}) -> A = checkIntegrity(XS), B = checkIntegrity(YS), if (A and B) -> clean(sum(XS,YS)); true -> error end;
+handler({sub,{XS,YS}}) -> A = checkIntegrity(XS), B = checkIntegrity(YS), if (A and B) -> clean(sub(XS,YS)); true -> error end;
+handler({mult,{XS,YS}}) -> A = checkIntegrity(XS), B = checkIntegrity(YS), if (A and B) -> clean(mult(XS,YS)); true -> error end;
+handler(_) -> ok.
 
-sub(XS, YS) -> sum(XS, negate(YS)).
+filter(t,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> (V == Vf) and (E == Ef) end,XS);
+filter(f,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> not ((V == Vf) and (E == Ef)) end,XS).
 
-mult(XS, YS) ->
-    normalize([
-        {calculateVars(V1, V2), C1 * C2, calculateExp(V1, V2, E1, E2)}
-     || {V1, C1, E1} <- XS, {V2, C2, E2} <- YS
-    ]).
+clean(XS) -> [{cleanGetVars(lists:zip(V,E)), C, cleanGetExp(lists:zip(V,E))} || {V,C,E} <- XS, C /= 0].
 
-normalize([]) ->
-    [];
-normalize([{V, C, E} | XS]) ->
-    [{V, C + getSum(filter(t, V, E, XS)), E}] ++ normalize(filter(f, V, E, XS)).
+cleanGetVars(VE) -> fst(lists:filter(fun({_,E}) -> E /= 0 end, VE)).
 
-getSum([]) -> 0;
-getSum([{_, C, _} | XS]) -> C + getSum(XS).
+cleanGetExp(VE) -> snd(lists:filter(fun({_,E}) -> E /= 0 end, VE)).
 
-filter(t, V, E, XS) -> lists:filter(fun({Vf, _, Ef}) -> (V == Vf) and (E == Ef) end, XS);
-filter(f, V, E, XS) -> lists:filter(fun({Vf, _, Ef}) -> (V /= Vf) or (E /= Ef) end, XS).
+normalize([]) -> [];
+normalize([{V,C,E}|XS]) -> [{V, lists:foldr(fun({_,C1,_},Acc) -> C1+Acc end, C, filter(t,V,E,XS)), E} | normalize(filter(f,V,E,XS))].
 
-% clean(XS) -> [{V,C,E} || {V,C,E} <- XS, C /= 0].
+sum(XS,YS) -> normalize(lists:append(XS,YS)).
 
-negate([]) -> [];
-negate([{V, C, E} | XS]) -> [{V, -C, E}] ++ negate(XS).
+sub(XS,YS) -> sum(XS,[{V,-C,E} || {V,C,E} <- YS]).
 
-recNub([], _) -> [];
-recNub([R | XS], R) -> recNub(XS, R);
-recNub([X | XS], R) -> [X] ++ recNub(XS, R).
+fst(XS) -> lists:map(fun({F,_}) -> F end,XS).
+snd(XS) -> lists:map(fun({_,S}) -> S end,XS).
 
-nub([]) -> [];
-nub([X | XS]) -> [X] ++ nub(recNub(XS, X)).
+merge(L1,[]) -> L1;
+merge([],L2) -> L2;
+merge([{V1,E1}|LS1],[{V2,E2}|LS2]) when V1 < V2 -> [{V1,E1} | merge(LS1, [{V2,E2} | LS2])];
+merge([{V1,E1}|LS1],[{V2,E2}|LS2]) when V1 > V2 -> [{V2,E2} | merge([{V1,E1} | LS1], LS2)];
+merge([{V,E1}|LS1],[{V,E2}|LS2]) -> [{V,E1+E2}] ++ merge(LS1,LS2).
 
-calculateVars(V1, V2) -> nub(lists:append(V1, V2)).
+calculateVars(J1,J2) -> fst(merge(lists:sort(J1), lists:sort(J2))).
 
-join(L1, []) -> L1;
-join([], L2) -> L2;
-join([L1 | LS1], [L2 | LS2]) when L1 < L2 -> [L1] ++ join(LS1, [L2] ++ LS2);
-join([L1 | LS1], [L2 | LS2]) when L1 > L2 -> [L2] ++ join([L1] ++ LS1, LS2);
-join([{V, E1} | LS1], [{V, E2} | LS2]) -> [{V, E1 + E2}] ++ join(LS1, LS2).
+calculateExp(J1,J2) -> snd(merge(lists:sort(J1), lists:sort(J2))).
 
-second([]) -> [];
-second([{_, S} | XS]) -> [S] ++ second(XS).
-
-calculateExp(V1, V2, E1, E2) ->
-    second(
-        join(
-            lists:sort(fun({V10, _}, {V11, _}) -> V10 < V11 end, lists:zip(V1, E1)),
-            lists:sort(fun({V20, _}, {V21, _}) -> V20 < V21 end, lists:zip(V2, E2))
-        )
-    ).
+mult(XS,YS) -> normalize([{calculateVars(lists:zip(V1,E1),lists:zip(V2,E2)), C1*C2, calculateExp(lists:zip(V1,E1),lists:zip(V2,E2))} || {V1,C1,E1} <- XS, {V2,C2,E2} <- YS]).

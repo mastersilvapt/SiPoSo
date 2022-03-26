@@ -86,5 +86,5 @@ loop(S) ->
     end.
 
 mid_point(sum, XS, YS) ->
-    X = mathfunc:sum(XS, YS),
+    X = mathfunc:handler({sum{XS, YS}}),
     exit({normal, X}).
