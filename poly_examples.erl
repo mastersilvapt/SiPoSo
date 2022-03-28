@@ -1,4 +1,4 @@
--module(polyExamples).
+-module(poly_examples).
 -export([ex1/0,ex2/0,ex3/0,ex4/0,ex5/0,ex6/0,ex7/0,ex8/0,ex9/0,ex10/0,ex11/0,ex12/0, sumRec1/0]).
 %-compile(export_all).
 
