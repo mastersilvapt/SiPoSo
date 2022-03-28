@@ -3,7 +3,7 @@
 
 % lists global names of available servers
 get_available_nodes() ->
-    L = polysupervisor:which_children({global, polysupervisor}),
+    L = supervisor:which_children({global, polysupervisor}),
     {T,_} = lists:split(length(L),lists:reverse(names())),
     T.
 
