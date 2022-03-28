@@ -1,5 +1,5 @@
 -module(client).
--export([sum/4,sub/4,mult/4,fact/4,isPrime/4]).
+-export([sum/4,sub/4,mult/4,fact/4,isPrime/4, list/0]).
 
 -import(polymanager,[getAvailableNodes/0]).
 
