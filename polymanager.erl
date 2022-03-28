@@ -1,9 +1,9 @@
--module(poly_manager).
+-module(polymanager).
 -export([get_available_nodes/0,names/0]).
 
 % lists global names of available servers
 get_available_nodes() ->
-    L = poly_supervisor:which_children({global, polysupervisor}),
+    L = polysupervisor:which_children({global, polysupervisor}),
     {T,_} = lists:split(length(L),lists:reverse(names())),
     T.
 

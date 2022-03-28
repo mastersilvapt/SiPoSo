@@ -1,4 +1,4 @@
--module(poly_supervisor).
+-module(polysupervisor).
 -behaviour(supervisor).
 
 -export([start_link/1]).
@@ -13,12 +13,12 @@ init(lenient) ->
 init({RestartStrategy, MaxRestart, MaxTime}) ->
     {ok, {{RestartStrategy, MaxRestart, MaxTime},
          [{server1,
-           {poly_worker, start_link, [super_alpha]},
-           permanent, 2000, worker, [poly_worker]},
+           {polyworker, start_link, [super_alpha]},
+           permanent, 2000, worker, [polyworker]},
            {server2,
-           {poly_worker, start_link, [titan_iota]},
-           permanent, 2000, worker, [poly_worker]}
+           {polyworker, start_link, [titan_iota]},
+           permanent, 2000, worker, [polyworker]}
          ]}}.
 
 % start another server
-% poly_supervisor:start_child({global,poly_supervisor},{server3,{poly_worker, start_link, [mega_eta]},permanent, 2000, worker, [poly_worker]}).
+% polysupervisor:start_child({global,polysupervisor},{server3,{polyworker, start_link, [mega_eta]},permanent, 2000, worker, [polyworker]}).

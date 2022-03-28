@@ -1,4 +1,4 @@
--module(poly_math).
+-module(polymath).
 -export([handler/1,check_integrity/1]).
 %-compile(export_all).
 

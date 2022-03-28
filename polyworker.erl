@@ -1,4 +1,4 @@
--module(poly_worker).
+-module(polyworker).
 -behaviour(gen_server).
 
 -export([start_link/1, stop/1, loop/1, mid_point/3]).
@@ -28,7 +28,7 @@ init([Name]) ->
 
 handle_info(timeout, S = #state{name = N}) ->
     io:format("~s accepting requests!~n", [N]),
-    poly_worker:loop(S),
+    polyworker:loop(S),
     {noreply, S};
 handle_info(_Message, S) ->
     {noreply, S, ?DELAY}.
@@ -79,12 +79,12 @@ loop(S) ->
             Res = restarter(Op, XS, YS),
             io:format("Got, ~p ~n", [Res]),
             From ! Res,
-            poly_worker:loop(S)
+            polyworker:loop(S)
     % after one match above try to match the following messages in the mailbox
     after 0 ->
-        poly_worker:loop(S)
+        polyworker:loop(S)
     end.
 
 mid_point(Op, XS, YS) ->
-    X = poly_math:handler({Op, {XS, YS}}),
+    X = polymath:handler({Op, {XS, YS}}),
     exit({normal, X}).
