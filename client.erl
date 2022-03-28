@@ -1,15 +1,23 @@
 -module(client).
--export([do/2]).
+-export([sum/4,sub/4,mult/4,fact/4,isPrime/4]).
 
-rpc(Server, Content) ->
-    Ref = make_ref(),
-    Server ! {self(), Ref, Content},
+-import(polymanager,[getAvailableNodes/0]).
+
+
+rpc(Server, T, Op, XS, YS) ->
+    global:send(Server, {Op, XS, YS, self(), T}),
     receive
-        {response, Ref, Replay} -> Replay
+        {ok, Res} -> Res
     end.
 
-do(sum,Args) -> io:format("Sum is ~p~n", [rpc(list,{sum,Args})]);
-do(sub,Args) -> io:format("Sum is ~p~n", [rpc(list,{sub,Args})]);
-do(mult,Args) -> io:format("Sum is ~p~n", [rpc(list,{mult,Args})]);
-do(status,_) -> io:format("Status: ~p~n",[rpc(list,{status})]);
-do(_,_) -> ok.
+sum(XS,YS,T,Server) -> io:format("The result is ~p~n",[rpc(Server,T,sum,XS,YS)]).
+
+sub(XS,YS,T,Server) -> io:format("The result is ~p~n",[rpc(Server,T,sub,XS,YS)]).
+
+mult(XS,YS,T,Server) -> io:format("The result is ~p~n",[rpc(Server,T,mult,XS,YS)]).
+
+fact(XS,YS,T,Server) -> io:format("The result is ~p~n",[rpc(Server,T,fact,XS,YS)]).
+
+isPrime(XS,YS,T,Server) -> io:format("The result is ~p~n",[rpc(Server,T,prime,XS,YS)]).
+
+list() -> polymanager:getAvailableNodes().

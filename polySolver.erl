@@ -34,10 +34,12 @@ merge(L1,[]) -> L1;
 merge([],L2) -> L2;
 merge([{V1,E1}|LS1],[{V2,E2}|LS2]) when V1 < V2 -> [{V1,E1} | merge(LS1, [{V2,E2} | LS2])];
 merge([{V1,E1}|LS1],[{V2,E2}|LS2]) when V1 > V2 -> [{V2,E2} | merge([{V1,E1} | LS1], LS2)];
-merge([{V,E1}|LS1],[{V,E2}|LS2]) -> [{V,E1+E2}] ++ merge(LS1,LS2).
+merge([{V,E1}|LS1],[{V,E2}|LS2]) -> [{V,E1+E2} | merge(LS1,LS2)].
 
 calculateVars(J1,J2) -> fst(merge(lists:sort(J1), lists:sort(J2))).
+%calculateVars(J1,J2) -> fst(lists:merge(fun() -> end, lists:sort(J1), lists:sort(J2))).
 
 calculateExp(J1,J2) -> snd(merge(lists:sort(J1), lists:sort(J2))).
+%calculateExp(J1,J2) -> snd(lists:merge(fun({V1,E1},{V2,E2}) -> if (V1 < V2) -> {V1,E1}; true -> if (V1 > V2) -> {V2,E2}; true -> {V1,E1+E2} end end, lists:sort(J1), lists:sort(J2))).
 
 mult(XS,YS) -> normalize([{calculateVars(lists:zip(V1,E1),lists:zip(V2,E2)), C1*C2, calculateExp(lists:zip(V1,E1),lists:zip(V2,E2))} || {V1,C1,E1} <- XS, {V2,C2,E2} <- YS]).

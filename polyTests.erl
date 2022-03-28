@@ -22,3 +22,7 @@ mult_test() ->
     ?assertEqual(s([{[x],1,[2]}]),s(polySolver:handler({mult,{polyExamples:ex1(),polyExamples:ex1()}}))),
     ?assertEqual(s([{[x],6,[2]},{[x],-2,[1]}]),s(polySolver:handler({mult,{polyExamples:ex1(),polyExamples:ex3()}}))),
     ?assertEqual(s([{[x,y],-8460,[2,2]}, {[x,y],2250,[3,3]}, {[x,y],3200,[1,1]}, {[x,y,z],-320,[3,4,1]}, {[x,y,z],10,[2,4,3]}, {[x,y,z],30,[1,2,2]}, {[x,y,z],750,[4,5,1]}, {[y,z],-100,[1,2]}]),s(polySolver:handler({mult,{polyExamples:ex9(),polyExamples:ex7()}}))).
+
+rec_test() ->
+    ?assertEqual(s([{[x],3,[1]}]),s(polySolver:handler({sum,{polyExamples:sumRec1(),polyExamples:ex1()}}))),
+    ?assertEqual(s([{[x],4,[1]}]),s(polySolver:handler({sum,{polyExamples:sumRec1(),polyExamples:sumRec1()}}))).
