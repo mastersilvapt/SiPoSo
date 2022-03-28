@@ -6,10 +6,10 @@ checkIntegrity([]) -> true;
 checkIntegrity([{V,C,E}|XS]) -> if (is_integer(C) and (length(V) == length(E))) -> checkIntegrity(XS); true -> false end;
 checkIntegrity(_) -> false.
 
-handler({sum,{XS,YS}}) -> A = checkIntegrity(XS), B = checkIntegrity(YS), if (A and B) -> clean(sum(XS,YS)); true -> error end;
-handler({sub,{XS,YS}}) -> A = checkIntegrity(XS), B = checkIntegrity(YS), if (A and B) -> clean(sub(XS,YS)); true -> error end;
-handler({mult,{XS,YS}}) -> A = checkIntegrity(XS), B = checkIntegrity(YS), if (A and B) -> clean(mult(XS,YS)); true -> error end;
-handler(_) -> ok.
+handler({sum,{XS,YS}}) -> clean(sum(handler(XS),handler(YS)));
+handler({sub,{XS,YS}}) -> clean(sub(handler(XS),handler(YS)));
+handler({mult,{XS,YS}}) -> clean(mult(handler(XS),handler(YS)));
+handler(XS) -> A = checkIntegrity(XS), if A -> XS; true -> {error,integrity} end.
 
 filter(t,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> (V == Vf) and (E == Ef) end,XS);
 filter(f,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> not ((V == Vf) and (E == Ef)) end,XS).
