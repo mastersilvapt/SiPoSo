@@ -60,8 +60,8 @@ terminate(shutdown, S) ->
 terminate(_Reason, S) ->
     io:format("Server ~s is leaving abnormally, ~p", [S#state.name, _Reason]).
 
-restarter(sum, XS, YS) ->
-    Pid = spawn_link(?MODULE, mid_point, [sum, XS, YS]),
+restarter(Op, XS, YS) ->
+    Pid = spawn_link(?MODULE, mid_point, [Op, XS, YS]),
     receive
         {'EXIT', Pid, {normal, Res}} ->
             io:format("Exited normally. ~n"),
@@ -69,14 +69,14 @@ restarter(sum, XS, YS) ->
         {'EXIT', Pid, shutdown} ->
             ok;
         {'EXIT', Pid, _} ->
-            restarter(sum, XS, YS)
+            restarter(Op, XS, YS)
     end.
 
 loop(S) ->
     receive
-        {sum, XS, YS, From, T} ->
+        {Op, XS, YS, From, T} ->
             timer:sleep(T),
-            Res = restarter(sum, XS, YS),
+            Res = restarter(Op, XS, YS),
             io:format("Got, ~p ~n", [Res]),
             From ! Res,
             polyworker:loop(S)
@@ -85,6 +85,6 @@ loop(S) ->
         polyworker:loop(S)
     end.
 
-mid_point(sum, XS, YS) ->
-    X = mathfunc:handler({sum{XS, YS}}),
+mid_point(Op, XS, YS) ->
+    X = polymath:handler({Op, {XS, YS}}),
     exit({normal, X}).

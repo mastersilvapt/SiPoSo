@@ -1,4 +1,4 @@
--module(mathfunc).
+-module(polymath).
 -export([handler/1,checkIntegrity/1]).
 %-compile(export_all).
 
