@@ -60,7 +60,7 @@ terminate(shutdown, S) ->
 terminate(_Reason, S) ->
     io:format("Server ~s is leaving abnormally, ~p", [S#state.name, _Reason]).
 
-restarter(Op, XS, YS) ->
+restarter(Op, XS, YS, K) when K < 10 ->
     Pid = spawn_link(?MODULE, mid_point, [Op, XS, YS]),
     receive
         {'EXIT', Pid, {normal, Res}} ->
@@ -69,18 +69,21 @@ restarter(Op, XS, YS) ->
         {'EXIT', Pid, shutdown} ->
             ok;
         {'EXIT', Pid, _} ->
-            restarter(Op, XS, YS)
-    end.
+            restarter(Op, XS, YS, K + 1)
+    end;
+restarter(_, _, _, _) ->
+    io:format("Unsuccessful computation! ~n"),
+    {ok, error}.
 
 loop(S) ->
     receive
         {Op, XS, YS, From, T} ->
             timer:sleep(T),
-            Res = restarter(Op, XS, YS),
+            Res = restarter(Op, XS, YS, 0),
             io:format("Got, ~p ~n", [Res]),
             From ! Res,
             polyworker:loop(S)
-    % after one match above try to match the following messages in the mailbox
+        % after one match above try to match the following messages in the mailbox
     after 0 ->
         polyworker:loop(S)
     end.
