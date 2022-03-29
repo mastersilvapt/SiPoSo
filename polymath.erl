@@ -1,5 +1,5 @@
 -module(polymath).
--export([handler/1,check_integrity/1]).
+-export([handler/1]).
 %-compile(export_all).
 
 % Verify if the polynomial structure is correct.
@@ -13,10 +13,6 @@ handler({sub,{XS,YS}}) -> clean(sub(handler(XS),handler(YS)));
 handler({mult,{XS,YS}}) -> clean(mult(handler(XS),handler(YS)));
 handler(XS) -> A = check_integrity(XS), if A -> XS; true -> {error,integrity} end.
 
-% Filters used for normalize, returns the matches to a certain term
-filter(t,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> (V == Vf) and (E == Ef) end,XS);
-filter(f,V,E,XS) -> lists:filter(fun({Vf,_,Ef}) -> not ((V == Vf) and (E == Ef)) end,XS).
-
 % Get the vars and the functions and remove the var if expoent equals to 0 and clears the term if coefficient is 0
 clean(XS) -> [{clean_get_vars(lists:zip(V,E)), C, clean_get_exp(lists:zip(V,E))} || {V,C,E} <- XS, C /= 0].
 
@@ -26,7 +22,7 @@ clean_get_exp(VE) -> snd(lists:filter(fun({_,E}) -> E /= 0 end, VE)).
 
 % Main function, takes the polynomial and simplifies every thing that is possivel (adding them if possible)
 normalize([]) -> [];
-normalize([{V,C,E}|XS]) -> [{V, lists:foldr(fun({_,C1,_},Acc) -> C1+Acc end, C, filter(t,V,E,XS)), E} | normalize(filter(f,V,E,XS))].
+normalize(XS) -> [{V,C,E} || {{V,E},C} <- maps:to_list(lists:foldr(fun({V,C,E},Map) -> maps:update_with({V,E},fun(Val) -> C + Val end, C, Map) end, maps:new(), XS))].
 
 % Just need to append both lists and the normalize will do the rest.
 sum(XS,YS) -> normalize(lists:append(XS,YS)).
