@@ -1,0 +1,24 @@
+Assuming a observer for the setup process:
+
+1. Open erlang node e.g erl -name observer@hostname -setcookie supermegapolycookie
+
+2. Start the manager in a node e.g erl -name manager@20.126.76.228 -setcookie supermegapolycookie -kernel inet_dist_listen_min 41161 inet_dist_listen_max 41161
+In this case port 4639 for epmd and 41161 chosen must be open.
+
+3. Start the supervisor in a node e.g erl -name supervisor@20.104.85.133 -setcookie supermegapolycookie -kernel inet_dist_listen_min 41161 inet_dist_listen_max 41161
+Ports same as 2.
+
+4. net_adm:ping('manager@20.126.76.228') and net_adm:ping('supervisor@20.104.85.133') with the observer. Load the polymanager to manager and polyworker, polymath and polysupervisor
+to supervisor.
+
+5. On the supervusir, polysupervisor:start_link(lenient).
+
+6. On the manager, polymanager:start().
+
+7. start a client, ping manager
+
+8. client:list
+
+9. query for sum, add, etc.
+
+10. success

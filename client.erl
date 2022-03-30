@@ -1,9 +1,6 @@
 -module(client).
 -export([sum/4,sub/4,mult/4,fact/4,is_prime/4, list/0]).
 
--import(polymanager,[get_available_nodes/0]).
-
-
 rpc(Server, T, Op, XS, YS) ->
     global:send(Server, {Op, XS, YS, self(), T}),
     receive
@@ -20,4 +17,11 @@ fact(XS,YS,T,Server) -> io:format("The result is ~p~n",[rpc(Server,T,fact,XS,YS)
 
 is_prime(XS,YS,T,Server) -> io:format("The result is ~p~n",[rpc(Server,T,prime,XS,YS)]).
 
-list() -> polymanager:get_available_nodes().
+list() -> 
+    net_adm:ping('manager@20.126.76.228'),
+    global:send(siposomanager, {who, self()}),
+    receive
+        {ok, L} -> L
+    end.
+    
+
