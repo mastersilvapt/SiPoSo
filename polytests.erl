@@ -5,7 +5,8 @@
 s(XS) -> lists:sort(XS).
 
 active_server_test() ->
-    ?assertEqual(pong, net_adm:ping('manager@20.126.76.228')).
+    ?assertEqual(pong, net_adm:ping('manager@20.126.76.228')),
+    timer:sleep(1000).
 
 client_sum_test() ->
     ok.

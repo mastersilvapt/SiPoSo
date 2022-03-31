@@ -14,7 +14,7 @@ handler({mult,{XS,YS}}) -> clean(mult(handler(XS),handler(YS)));
 handler({fact,{X}}) -> fact(X);
 handler({is_prime,{X}}) -> is_prime(X,2);
 handler({fib,{X}}) -> fib(X);
-handler({macSeries,{S,E,V}}) -> macSeries(S,E,V);
+handler({macSeries,{E,V}}) -> if E > 170 -> macSeries(0,170,V); true -> macSeries(0,E,V) end;
 handler(XS) -> A = check_integrity(XS), if A -> XS; true -> {error,integrity} end.
 
 % Get the vars and the functions and remove the var if expoent equals to 0 and clears the term if coefficient is 0
@@ -65,7 +65,8 @@ fib(1) -> 1;
 fib(X) when X > 1 -> fib(X-1) + fib(X-2);
 fib(_) -> 0.
 
-calc(X,V) -> math:pow(V,X) / fact(X).
+calc(X,V) -> math:pow(X,V) / fact(X).
 
 macSeries(V,V,X) -> calc(V,X);
-macSeries(Start,End, X) -> calc(Start,X) + macSeries(Start+1, End, X).
+macSeries(Start, End, X) when Start < End -> calc(Start,X) + macSeries(Start+1, End, X);
+macSeries(_,_,_) -> {error, not_valid}.
