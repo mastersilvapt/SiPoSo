@@ -1,5 +1,5 @@
 -module(client).
--export([sum/4,sub/4,mult/4,fact/3,is_prime/3, list/0]).
+-export([sum/4,sub/4,mult/4,fact/3,is_prime/3, fib/3, maclaurinSeries/5,list/0]).
 
 rpc(Server, T, Args) ->
     global:send(Server, {Args, self(), T}),
