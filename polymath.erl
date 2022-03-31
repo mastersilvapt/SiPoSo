@@ -11,6 +11,10 @@ check_integrity(_) -> false.
 handler({sum,{XS,YS}}) -> clean(sum(handler(XS),handler(YS)));
 handler({sub,{XS,YS}}) -> clean(sub(handler(XS),handler(YS)));
 handler({mult,{XS,YS}}) -> clean(mult(handler(XS),handler(YS)));
+handler({fact,{X}}) -> fact(X);
+handler({is_prime,{X}}) -> is_prime(X,2);
+handler({fib,{X}}) -> fib(X);
+handler({macSeries,{S,E,V}}) -> macSeries(S,E,V);
 handler(XS) -> A = check_integrity(XS), if A -> XS; true -> {error,integrity} end.
 
 % Get the vars and the functions and remove the var if expoent equals to 0 and clears the term if coefficient is 0
@@ -48,3 +52,20 @@ calculate_exp(J1,J2) -> snd(merge(lists:sort(J1), lists:sort(J2))).
 
 % Using comprehension lists we can multiply each member of the first one for the second, after that we only need to normalize, each term vars and expoents are calculated with the merge function
 mult(XS,YS) -> normalize([{calculate_vars(lists:zip(V1,E1),lists:zip(V2,E2)), C1*C2, calculate_exp(lists:zip(V1,E1),lists:zip(V2,E2))} || {V1,C1,E1} <- XS, {V2,C2,E2} <- YS]).
+
+fact(0) -> 1;
+fact(X) -> X * fact(X-1).
+
+is_prime(1,_) -> false;
+is_prime(X,Y) when Y*Y =< X -> if X rem Y == 0 -> false; true -> is_prime(X,Y+1) end;
+is_prime(_,_) -> false.
+
+fib(0) -> 1;
+fib(1) -> 1;
+fib(X) when X > 1 -> fib(X-1) + fib(X-2);
+fib(_) -> 0.
+
+calc(X,V) -> math:pow(V,X) / fact(X).
+
+macSeries(V,V,X) -> calc(V,X);
+macSeries(Start,End, X) -> calc(Start,X) + macSeries(Start+1, End, X).

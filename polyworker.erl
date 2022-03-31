@@ -1,7 +1,7 @@
 -module(polyworker).
 -behaviour(gen_server).
 
--export([start_link/1, stop/1, loop/1, mid_point/3]).
+-export([start_link/1, stop/1, loop/1, mid_point/1]).
 -export([
     init/1,
     handle_call/3,
@@ -60,8 +60,8 @@ terminate(shutdown, S) ->
 terminate(_Reason, S) ->
     io:format("Server ~s is leaving abnormally, ~p", [S#state.name, _Reason]).
 
-restarter(Op, XS, YS, K) when K < 10 ->
-    Pid = spawn_link(?MODULE, mid_point, [Op, XS, YS]),
+restarter(Args, K) when K < 10 ->
+    Pid = spawn_link(?MODULE, mid_point, [Args]),
     receive
         {'EXIT', Pid, {normal, Res}} ->
             io:format("Exited normally. ~n"),
@@ -69,17 +69,17 @@ restarter(Op, XS, YS, K) when K < 10 ->
         {'EXIT', Pid, shutdown} ->
             ok;
         {'EXIT', Pid, _} ->
-            restarter(Op, XS, YS, K + 1)
+            restarter(Args, K + 1)
     end;
-restarter(_, _, _, _) ->
+restarter(_, _) ->
     io:format("Unsuccessful computation! ~n"),
     {ok, error}.
 
 loop(S) ->
     receive
-        {Op, XS, YS, From, T} ->
+        {Args, From, T} ->
             timer:sleep(T),
-            Res = restarter(Op, XS, YS, 0),
+            Res = restarter(Args, 0),
             io:format("Got, ~p ~n", [Res]),
             From ! Res,
             polyworker:loop(S)
@@ -88,6 +88,6 @@ loop(S) ->
         polyworker:loop(S)
     end.
 
-mid_point(Op, XS, YS) ->
-    X = polymath:handler({Op, {XS, YS}}),
+mid_point(Args) ->
+    X = polymath:handler(Args),
     exit({normal, X}).

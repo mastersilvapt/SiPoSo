@@ -29,7 +29,7 @@ start_another(N, RestartType, ShutdownTime) ->
             {list_to_atom("server"++integer_to_list(N)), {polyworker, start_link, [list_to_atom(lists:nth(N, names()))]}, RestartType, ShutdownTime, worker, [
                 polyworker
             ]}
-        );
+        ), ok;
     true ->
         io:format("First parameter must be within 1 and 5 ~n")
     end.

@@ -4,6 +4,22 @@
 
 s(XS) -> lists:sort(XS).
 
+active_server_test() ->
+    ?assertEqual(pong, net_adm:ping('manager@20.126.76.228')).
+
+client_sum_test() ->
+    ok.
+
+client_sub_test() ->
+    ok.
+
+client_mult_test() ->
+    ok.
+
+obverset_test() ->
+    A = polymanager:start_another(3,transient,2000),
+    if A == ok -> ?assertEqual(3, length(supervisor:which_children({global,polysupervisor}))), polymanager:stop_child(server3), polymanager:delete_child(server3) end.
+
 sum_test() ->
     ?assertEqual(s([{[x],2,[1]}]), s(polymath:handler({sum,{polyexamples:ex1(), polyexamples:ex1()}}))),
     ?assertEqual(s([{[x],1,[2]},{[z],1,[2]},{[x],6,[1]},{[x,y,z],1,[1,1,1]},{[],-5,[]}]), s(polymath:handler({sum,{polyexamples:ex3(), polyexamples:ex6()}}))),
