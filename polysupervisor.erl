@@ -19,9 +19,3 @@ init({RestartStrategy, MaxRestart, MaxTime}) ->
            {polyworker, start_link, [titan_iota]},
            permanent, 2000, worker, [polyworker]}
          ]}}.
-
-% start another server
-% polysupervisor:start_child({global,polysupervisor},{server3,{polyworker, start_link, [mega_eta]},permanent, 2000, worker, [polyworker]}).
-
-% start node
-% erl -name supervisor@20.104.85.133 -setcookie supermegapolycookie -kernel inet_dist_listen_min 41161 inet_dist_listen_max 41161

@@ -23,7 +23,7 @@ get_available_nodes() ->
 
 % tells supervisor to start another node
 start_another(N, RestartType, ShutdownTime) ->
-    if N >= 1 andalso N =< 5 ->
+    if N >= 1 andalso N =< length(names()) ->
         supervisor:start_child(
             {global, polysupervisor},
             {list_to_atom("server"++integer_to_list(N)), {polyworker, start_link, [list_to_atom(lists:nth(N, names()))]}, RestartType, ShutdownTime, worker, [
@@ -31,7 +31,7 @@ start_another(N, RestartType, ShutdownTime) ->
             ]}
         ), ok;
     true ->
-        io:format("First parameter must be within 1 and 5 ~n")
+        io:format("First parameter must be within 1 and ~p ~n", [length(names)])
     end.
 
 
@@ -51,6 +51,7 @@ restart_child(ChildName) ->
 stop_supervisor() ->
     exit(global:whereis_name(polysupervisor), shutdown).
 
+% limit of names, hence servers we can spawn
 names() ->
     [
         "super_gamma",
@@ -59,6 +60,3 @@ names() ->
         "titan_iota",
         "super_alpha"
     ].
-
-% start node
-% erl -name manager@20.126.76.228 -setcookie supermegapolycookie -kernel inet_dist_listen_min 41161 inet_dist_listen_max 41161

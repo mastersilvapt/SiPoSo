@@ -11,8 +11,8 @@
     terminate/2
 ]).
 
-% pol1, pol2 are deprecated
--record(state, {name, pol1, pol2, res}).
+% res is deprecated, res no longer part of server record
+-record(state, {name, res}).
 -define(DELAY, 750).
 
 start_link(Name) ->
@@ -24,7 +24,7 @@ init([Name]) ->
     %% To know when the parent shuts down
     process_flag(trap_exit, true),
     io:format("Server ~s started ~n", [Name]),
-    {ok, #state{name = Name}, ?DELAY}.
+    {ok, #state{name = Name}, ?DELAY}.  % give some delay before accepting to make sure everything is ok
 
 handle_info(timeout, S = #state{name = N}) ->
     io:format("~s accepting requests!~n", [N]),
@@ -60,6 +60,7 @@ terminate(shutdown, S) ->
 terminate(_Reason, S) ->
     io:format("Server ~s is leaving abnormally, ~p", [S#state.name, _Reason]).
 
+% creates worker process and monitors it for results
 restarter(Args, K) when K < 10 ->
     Pid = spawn_link(?MODULE, mid_point, [Args]),
     receive
@@ -75,6 +76,7 @@ restarter(_, _) ->
     io:format("Unsuccessful computation! ~n"),
     {ok, error}.
 
+% wait for requests
 loop(S) ->
     receive
         {Args, From, T} ->
