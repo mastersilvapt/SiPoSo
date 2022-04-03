@@ -5,12 +5,9 @@
 s(XS) -> lists:sort(XS).
 
 % Should return error if the manager and supevisors are on
-active_server_test() ->
+server_test() ->
     ?assertEqual(pong, net_adm:ping('manager@20.126.76.228')),
-    timer:sleep(1000).
-
-% Should return error if the manager and supevisors are on
-manager_test() ->
+    timer:sleep(1000),
     A = polymanager:start_another(3,transient,2000),
     if A == ok -> ?assertEqual(3, length(supervisor:which_children({global,polysupervisor}))), polymanager:stop_child(server3), polymanager:delete_child(server3) end.
 

@@ -23,7 +23,8 @@ get_available_nodes() ->
 
 % tells supervisor to start another node
 start_another(N, RestartType, ShutdownTime) ->
-    if N >= 1 andalso N =< length(names()) ->
+    Cond = N >= 1 andalso N =< length(names()), % Cant call imported functions or local functions inside if
+    if Cond ->
         supervisor:start_child(
             {global, polysupervisor},
             {list_to_atom("server"++integer_to_list(N)), {polyworker, start_link, [list_to_atom(lists:nth(N, names()))]}, RestartType, ShutdownTime, worker, [
@@ -31,7 +32,7 @@ start_another(N, RestartType, ShutdownTime) ->
             ]}
         ), ok;
     true ->
-        io:format("First parameter must be within 1 and ~p ~n", [length(names)])
+        io:format("First parameter must be within 1 and ~p ~n", [length(names())])
     end.
 
 
