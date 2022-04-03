@@ -23,7 +23,7 @@ get_available_nodes() ->
 
 % tells supervisor to start another node
 start_another(N, RestartType, ShutdownTime) ->
-    Cond = N >= 1 andalso N =< length(names()), % Cant call imported functions or local functions inside if
+    Cond = N >= 1 andalso N =< length(names()),
     if Cond ->
         supervisor:start_child(
             {global, polysupervisor},
