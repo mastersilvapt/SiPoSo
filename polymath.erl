@@ -8,9 +8,9 @@ check_integrity([{V,C,E}|XS]) -> if (is_integer(C) and (length(V) == length(E)))
 check_integrity(_) -> false.
 
 % Entry point to math functions, calls the clean funtion after perform each operaction and is recursive (not needed)
-handler({sum,{XS,YS}}) -> clean(sum(handler(XS),handler(YS)));
-handler({sub,{XS,YS}}) -> clean(sub(handler(XS),handler(YS)));
-handler({mult,{XS,YS}}) -> clean(mult(handler(XS),handler(YS)));
+handler({sum,{XS,YS}}) -> sum(handler(XS),handler(YS));
+handler({sub,{XS,YS}}) -> sub(handler(XS),handler(YS));
+handler({mult,{XS,YS}}) -> mult(handler(XS),handler(YS));
 handler({fact,{X}}) -> fact(X);
 handler({is_prime,{X}}) -> is_prime(X,2);
 handler({fib,{X}}) -> fib(X);
