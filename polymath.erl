@@ -25,8 +25,10 @@ clean_get_vars(VE) -> fst(lists:filter(fun({_,E}) -> E /= 0 end, VE)).
 clean_get_exp(VE) -> snd(lists:filter(fun({_,E}) -> E /= 0 end, VE)).
 
 % Main function, takes the polynomial and simplifies every thing that is possivel (adding them if possible)
-normalize([]) -> [];
-normalize(XS) -> [{V,C,E} || {{V,E},C} <- maps:to_list(lists:foldr(fun({V,C,E},Map) -> maps:update_with({V,E},fun(Val) -> C + Val end, C, Map) end, maps:new(), XS))].
+normalize(XS) -> clean(do_normalize(XS)).
+
+do_normalize([]) -> [];
+do_normalize(XS) -> [{V,C,E} || {{V,E},C} <- maps:to_list(lists:foldr(fun({V,C,E},Map) -> maps:update_with({V,E},fun(Val) -> C + Val end, C, Map) end, maps:new(), XS))].
 
 % Just need to append both lists and the normalize will do the rest.
 sum(XS,YS) -> normalize(lists:append(XS,YS)).
