@@ -10,13 +10,13 @@
 
 3. Start the **supervisor** in a node at the supervisor machine e.g `erl -name supervisor@20.104.85.133 -setcookie supermegapolycookie -kernel inet_dist_listen_min 41161 inet_dist_listen_max 41161`. Ports same as point 2.
 
-4. Use `net_adm:ping('manager@20.126.76.228')` and `net_adm:ping('supervisor@20.104.85.133')` from the observer. Load the polymanager to manager and polyworker, polymath and polysupervisor to supervisor from the observer with nl(module_name). This makes so only the .beams will be present temporarly in the other machines.
+4. Use `net_adm:ping('manager@20.126.76.228')` and `net_adm:ping('supervisor@20.104.85.133')` from the observer. Load the polymanager to manager and polyworker, polymath and polysupervisor to supervisor from the observer with `nl(module_name)`. This makes so only the .beams will be present temporarly in the other machines.
 
 5. On the **supervisor** do: `polysupervisor:start_link(lenient)`.
 
 6. On the **manager** do: `polymanager:start()`.
 
-7. Start a **client** e.g `erl -name client@hostname -setcookie supermegapolycookie`
+7. Start a **client** e.g `erl -name client@hostname -setcookie supermegapolycookie`.
 
 8. Use `client:list()` to get **available servers**.
 
